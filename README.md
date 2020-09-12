@@ -16,5 +16,7 @@
 
 → 메인넷이 있으면 코인, 메인넷이 없으면 토큰
 
+<img width="1143" alt="_2020-09-12__3 01 56" src="https://user-images.githubusercontent.com/48006103/92989097-7041e200-f50c-11ea-9588-78d863576301.png">
+
 
 - DeFi (블록체인을 활용한 금융)
