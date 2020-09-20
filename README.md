@@ -61,7 +61,39 @@ uint[] dynamicArray;
 Zombie[] public zombies; // 구조체 배열 선언. 
 ```
 
+**4. Private 과Public**
+
+- Private : 컨트랙트 내의 다른 함수들 만이 함수를 호출할 수 있다.  (private 함수의 함수 명은 앞에 _ 를 관례적으로 붙여 준다)
+- Public : 외부 컨트랙트에서도 함수에 대해서 접근할 수 있다.
+
+**5. View 와 Pure**
+
+- View :  어떤 값을 변경시키지 않고 단지 보여주는 경우
+- Pure : 함수가 앱에서 어떤 데이터도 접근하지 않는 경우
+
+---
+
 - Lesson 2
+
+1. address
+
+0x0cE446255506E92DF41614C46F1d6df9Cc969183 같은 형태의 주소를 뜻한다. 
+
+  2. mapping 
+
+- 매핑은 기본적으로 키-값 (key-value) 저장소를 뜻한다.
+
+→ ex) *금융 앱용으로, 유저의 계좌 잔액을 보유하는 uint를 저장한다 :* 
+
+`mapping (address => uint) public accountBalance;`  → 주소가 인트형에 매핑이 된다. 
+
+```
+mapping (uint => address) public zombieToOwner;  // int형이 주소랑 매핑
+mapping (address => uint) ownerZombieCount;  // 주소가 int형이랑 매핑.
+
+zombieToOwner[id] = msg.sender;  // id => msg.sender
+ownerZombieCount[msg.sender]++; // msg.sender => uint(count)
+```
 
 - Lesson3
 
