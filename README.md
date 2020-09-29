@@ -18,13 +18,21 @@
 
 → 메인넷이 있으면 코인, 메인넷이 없으면 토큰
 
+</br>
+
 <img width="1143" alt="_2020-09-12__3 01 56" src="https://user-images.githubusercontent.com/48006103/93708028-17a6c080-fb6e-11ea-9dac-09b6f0e8ee21.png">
 
 - DeFi (블록체인을 활용한 금융)
 
+</br></br>
+
 ## [솔리디티 - Cryptozombies]
 
-- Lesson 1
+</br>
+
+### Lesson 1
+
+</br>
 
 1. **contract 선언 방식** 
 
@@ -38,6 +46,7 @@ contract ZombieFactory{    //ZombieFactory 라는 컨트랙트 생성
 ```
 
 → 부호 없는 정수: uint 로 선언한다. 
+</br>
 
 2**. 구조체 선언   → c 랑 똑같다.**
 
@@ -61,19 +70,27 @@ uint[] dynamicArray;
 Zombie[] public zombies; // 구조체 배열 선언. 
 ```
 
+</br>
+
 **4. Private 과Public**
 
 - Private : 컨트랙트 내의 다른 함수들 만이 함수를 호출할 수 있다.  (private 함수의 함수 명은 앞에 _ 를 관례적으로 붙여 준다)
 - Public : 외부 컨트랙트에서도 함수에 대해서 접근할 수 있다.
+
+</br>
 
 **5. View 와 Pure**
 
 - View :  어떤 값을 변경시키지 않고 단지 보여주는 경우
 - Pure : 함수가 앱에서 어떤 데이터도 접근하지 않는 경우
 
+</br></br>
+
 ---
 
-- Lesson 2
+### Lesson 2
+
+</br>
 
 1. address
 
@@ -87,7 +104,7 @@ Zombie[] public zombies; // 구조체 배열 선언.
 
 `mapping (address => uint) public accountBalance;`  → 주소가 인트형에 매핑이 된다. 
 
-```
+```c
 mapping (uint => address) public zombieToOwner;  // int형이 주소랑 매핑
 mapping (address => uint) ownerZombieCount;  // 주소가 int형이랑 매핑.
 
@@ -95,7 +112,324 @@ zombieToOwner[id] = msg.sender;  // id => msg.sender
 ownerZombieCount[msg.sender]++; // msg.sender => uint(count)
 ```
 
-- Lesson3
+
+
+</br> </br>
+
+
+
+### Lesson3
+
+</br>
+
+
+
+#### msg.sender
+
+:arrow_right: 모든 함수에서 쓸 수 있는 전역변수, 현재 함수를 호출한 사람 또는 스마트 컨트랙트의 주소를 가리킨다. 
+
+
+
+</br></br>
+
+#### require 
+
+:arrow_right: 특정 조건이 참이 아닐 때 에러 메시지를 표시하고 실행을 멈춘다. 
+
+```c
+function sayHiToVitalik(string _name) public returns (string) {
+  // _name이 "Vitalik"인지 비교한다. 참이 아닐 경우 에러 메시지를 발생하고 함수를 벗어난다
+  // (참고: 솔리디티는 고유의 스트링 비교 기능을 가지고 있지 않기 때문에 
+  // 스트링의 keccak256 해시값을 비교하여 스트링 값이 같은지 판단한다)
+  require(keccak256(_name) == keccak256("Vitalik"));
+  // 참이면 함수 실행을 진행한다:
+  return "Hi!";
+}
+```
+
+
+
+</br></br>
+
+#### 상속
+
+```c
+contract Doge {
+  function catchphrase() public returns (string) {
+    return "So Wow CryptoDoge";
+  }
+}
+
+contract BabyDoge is Doge {           // BabyDoge는 Doge 를 상속받는다. 
+  function anotherCatchphrase() public returns (string) {
+    return "Such Moon BabyDoge";
+  }
+}
+```
+
+</br></br>
+
+
+
+#### storage & memory
+
+- storage : 블록체인 상에 영구적으로 저장되는 변수. (하드디스크)
+- memory. : 임시적으로 저장되는 변수 (RAM)
+
+</br>
+
+```c
+function eatSandwich(uint _index) public {
+    // Sandwich mySandwich = sandwiches[_index];
+
+    // ^ 꽤 간단해 보이나, 솔리디티는 여기서 
+    // `storage`나 `memory`를 명시적으로 선언해야 한다는 경고 메시지를 발생한다. 
+    // 그러므로 `storage` 키워드를 활용하여 다음과 같이 선언해야 한다:
+    Sandwich storage mySandwich = sandwiches[_index];
+    // ...이 경우, `mySandwich`는 저장된 `sandwiches[_index]`를 가리키는 포인터이다.
+    // 그리고 
+    mySandwich.status = "Eaten!";
+    // ...이 코드는 블록체인 상에서 `sandwiches[_index]`을 영구적으로 변경한다. 
+
+    // 단순히 복사를 하고자 한다면 `memory`를 이용하면 된다: 
+    Sandwich memory anotherSandwich = sandwiches[_index + 1];
+    // ...이 경우, `anotherSandwich`는 단순히 메모리에 데이터를 복사하는 것이 된다. 
+    // 그리고 
+    anotherSandwich.status = "Eaten!";
+    // ...이 코드는 임시 변수인 `anotherSandwich`를 변경하는 것으로 
+    // `sandwiches[_index + 1]`에는 아무런 영향을 끼치지 않는다. 그러나 다음과 같이 코드를 작성할 수 있다: 
+    sandwiches[_index + 1] = anotherSandwich;
+    // ...이는 임시 변경한 내용을 블록체인 저장소에 저장하고자 하는 경우이다.
+  }
+```
+
+
+
+</br></br>
+
+
+
+#### Internal & External
+
+- internal : 함수가 정의된 컨트랙트를 상속하는 컨트랙트에서도 접근이 가능, 그리고 private 과 동일.
+- external : 함수가 컨트랙트 바깥에서만 호출될 수 있고 컨트랙트 내의 다른 함수에 의해 호출될 수 없다 , 나머지는 public 과 동일.
+
+
+
+</br></br>
+
+#### Interface 
+
+```c
+contract NumberInterface {
+  function getNum(address _myAddress) public view returns (uint);    // 인터페이스 선언 방식
+}
+```
+
+</br>
+
+:arrow_right: 인터페이스를 정의하는 것이 컨트랙트를 정의하는 것과 유사하다. 그러나 다른 컨트랙트와 상호작용하고자 하는 함수만 선언한다.  
+
+
+
+</br></br>
+
+
+
+#### 다수의 반환값 처리 
+
+```c 
+function multipleReturns() internal returns(uint a, uint b, uint c) {
+  return (1, 2, 3);
+}
+
+function processMultipleReturns() external {
+  uint a;    // unsigned int
+  uint b;
+  uint c;
+  // 다음과 같이 다수 값을 할당한다:
+  (a, b, c) = multipleReturns();
+}
+
+// 혹은 단 하나의 값에만 관심이 있을 경우: 
+function getLastReturnValue() external {
+  uint c;
+  // 다른 필드는 빈칸으로 놓기만 하면 된다: 
+  (,,c) = multipleReturns();
+}
+```
+
+
+
+</br></br>
+
+
+
+	### Lesson4
+
+
+
+</br></br>
+
+#### payable 제어자
+
+</br>
+
+:arrow_right: 이더를 받을 수 있는 함수 유형.
+
+```c 
+contract OnlineStore {
+  function buySomething() external payable {
+    // 함수 실행에 0.001이더가 보내졌는지 확실히 하기 위해 확인:
+    require(msg.value == 0.001 ether);
+    // 보내졌다면, 함수를 호출한 자에게 디지털 아이템을 전달하기 위한 내용 구성:
+    transferThing(msg.sender);
+  }
+}
+```
+
+</br>
+
+- msg.value 는 컨트랙트로 이더가 얼마나 보내졌는지 확인할 수 있게 해준다. 
+
+- `transfer` 함수를 사용해서 이더를 특정 주소로 전달할 수 있다
+- 그리고 `this.balance`는 컨트랙트에 저장돼있는 전체 잔액을 반환한다. 
+
+</br>
+
+```c
+contract GetPaid is Ownable {
+  function withdraw() external onlyOwner {
+    owner.transfer(this.balance);    // transfer 로 이더를 전송한다. 
+  }
+}
+```
+
+
+
+</br></br>
+
+#### 난수 생성 
+
+</br>
+
+:arrow_right: `keccak256` 해시 함수를 써서 만들 수 있다. 
+
+</br>
+
+```c
+// Generate a random number between 1 and 100:
+uint randNonce = 0;  
+uint random = uint(keccak256(now, msg.sender, randNonce)) % 100;  
+randNonce++;
+uint random2 = uint(keccak256(now, msg.sender, randNonce)) % 100;
+
+
+/// now: 타임스탬프 값
+```
+
+
+
+
+
+</br></br>
+
+
+
+### Lesson5
+
+</br></br>
+
+
+
+#### ERC20 토큰
+
+</br>
+
+- 몇몇 공통 규약을 따르는 스마트 컨트랙트
+- 하나의 컨트랙트로  그 안에서 누가 얼마나 많은 토큰을 가지고 있는지 기록하고, 몇몇 함수를 가지고 사용자들이 그들의 토큰을 다른 주소로 전송할 수 있게 해준다. 
+
+
+
+
+
+</br></br>
+
+#### SafeMath 
+
+</br>
+
+:arrow_right: 오퍼 플로우를 방지할 수 있다. 
+
+</br>
+
+**ex)**
+
+```c
+using SafeMath for uint256;
+
+uint256 a = 5;
+uint256 b = a.add(3); // 5 + 3 = 8
+uint256 c = a.mul(2); // 5 * 2 = 10
+```
+
+
+
+</br>
+
+**SafeMath 내부 코드**
+
+</br>
+
+```c
+library SafeMath {   // mul, div, sub, add 의 연산을 한다. 
+
+  function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+    if (a == 0) {
+      return 0;
+    }
+    uint256 c = a * b;
+    assert(c / a == b);
+    return c;
+  }
+
+  function div(uint256 a, uint256 b) internal pure returns (uint256) {
+    // assert(b > 0); // Solidity automatically throws when dividing by 0
+    uint256 c = a / b;
+    // assert(a == b * c + a % b); // There is no case in which this doesn't hold
+    return c;
+  }
+
+  function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+    assert(b <= a);
+    return a - b;
+  }
+
+  function add(uint256 a, uint256 b) internal pure returns (uint256) {
+    uint256 c = a + b;
+    assert(c >= a);      // 조건을 걸어서 오버 플로우를 방지한다. 
+    return c;
+  }
+}
+```
+
+</br>
+
+- `assert` : 조건을 만족하지 않으면 에러를 발생시킨다. `require`는 함수 실행이 실패하면 남은 가스를 사용자에게 되돌려 주지만, `assert`는 그렇지 않다.
+
+
+
+
+
+</br></br>
+
+
+
+
+
+
+
+
 
 # 2020/09/19 세미나 - 상세히 정리 필요.
 
