@@ -694,6 +694,45 @@ vc(verifiable credential)
 
 
 
+# [2020/10/09]
+
+
+
+
+
+# Truffle Framework란?
+
+Truffle Famework는 솔리디티 코드(스마트 컨트랙트)를 로컬 환경에서 보다 쉽게 컴파일하고 배포할 수 있는 프레임워크입니다.
+
+
+
+contract()라는 함수를 호출하여 그룹 테스트를 한다. 테스트에 대한 계정 목록을 제공하고 일부 정리를 수행함으로써 Mocha의 기술()을 확장한다.
+
+계약은 두 가지 주장을 취한다. 첫 번째 끈은 우리가 무엇을 테스트할 것인지를 표시해야 한다. 두 번째 변수, 콜백은 우리가 실제로 시험을 칠 지점이다.
+
+실행: 우리가 이것을 하는 방법은 it라는 이름의 함수를 호출하는 것이다. 이 함수는 또한 두 가지 주장을 취한다: 테스트가 실제로 무엇을 하는지 설명하는 문자열과 콜백.
+
+
+
+
+
+
+
+
+
+``` js
+ context("with the single-step transfer scenario", async () => {
+        it("should transfer a zombie", async () => {
+            const result = await contractInstance.createRandomZombie(zombieNames[0], {from: alice});
+          	//
+            const zombieId = result.logs[0].args.zombieId.toNumber();
+            await contractInstance.transferFrom(alice, bob, zombieId, {from: alice});
+            const newOwner = await contractInstance.ownerOf(zombieId);
+            assert.equal(newOwner, bob);
+        })
+    })
+```
+
 
 
 
