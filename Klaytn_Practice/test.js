@@ -4,27 +4,33 @@ const caver = new Caver("https://api.baobab.klaytn.net:8651/");
 
 async function testFunction() {
     // Add a keyring to caver.wallet
-
     const private_key =
-        "8d7b30525c2c85ec1c78850d0fc96a524aaaa2a0e183f2f14c938b626e9f2cfc";
-    const keyring = caver.wallet.keyring.createFromPrivateKey(
-        `0x${private_key}`
+        "0x9ac77e0d4bdb53502183b374de430ba57384edb094930ec2306d9183f6e498a2";
+
+    let sender = caver.wallet.keyring.createFromPrivateKey(`${private_key}`);
+    caver.wallet.add(sender);
+
+    const newPrivateKey = caver.wallet.keyring.generateSingleKey();
+    console.log(`new private key string: ${newPrivateKey}`);
+    const newKeyring = caver.wallet.keyring.createWithSingleKey(
+        sender.address,
+        newPrivateKey
     );
-    caver.wallet.add(keyring);
 
-    // Create a value transfer transaction
-    const valueTransfer = new caver.transaction.valueTransfer({
-        from: keyring.address,
-        to: "0x176ff0344de49c04be577a3512b6991507647f72",
-        value: 1,
-        gas: 30000,
+    // create an Account instance
+    const account = newKeyring.toAccount();
+
+    const updateTx = new caver.transaction.accountUpdate({
+        from: sender.address,
+        account: account,
+        gas: 50000,
     });
+    await caver.wallet.sign(sender.address, updateTx);
+    const receipt = await caver.rpc.klay.sendRawTransaction(updateTx);
+    console.log(receipt);
 
-    // Sign the transaction via caver.wallet.sign
-    await caver.wallet.sign(keyring.address, valueTransfer);
-
-    const rlpEncoded = valueTransfer.getRLPEncoding();
-    console.log(`RLP-encoded string: ${rlpEncoded}`);
+    // Update the keyring in caver.wallet for signing afterward.
+    sender = caver.wallet.updateKeyring(newKeyring);
 }
 
 testFunction();
